@@ -1,0 +1,3516 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Jammers — Live Gig Boards</title>
+  <meta name="description" content="Track upcoming gigs, see which songs are already moving, and join the live line-up for The Jammers community.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ============================================
+   THE JAMMERS — shared brand styles
+   Design tokens, components, motion, a11y
+   ============================================ */
+
+:root {
+  --stage: #100E0D;
+  --stage-2: #1A1614;
+  --stage-3: #221C1A;
+  --sand: #F3EAD7;
+  --gold: #FFB300;
+  --red: #E53935;
+  --blue: #2196F3;
+  --line: rgba(255, 255, 255, 0.10);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --text-1: rgba(243, 234, 215, 1);
+  --text-2: rgba(255, 255, 255, 0.85);
+  --text-3: rgba(255, 255, 255, 0.70);
+  --text-4: rgba(255, 255, 255, 0.55);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.4rem;
+  --shadow-card: 0 18px 46px rgba(0, 0, 0, 0.42);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--stage);
+  color: var(--text-2);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Brand wave (top decorative bar) */
+.brand-wave {
+  background: linear-gradient(90deg, var(--gold) 0%, #FF6F00 25%, var(--red) 55%, #7E57C2 80%, var(--blue) 100%);
+  height: 4px;
+  width: 100%;
+}
+
+/* Skip link — keyboard-only */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 200;
+  background: var(--gold);
+  color: var(--stage);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 1rem;
+  outline: 3px solid var(--sand);
+  outline-offset: 2px;
+}
+
+/* Focus rings */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background:
+    radial-gradient(ellipse 60% 140% at 0% 50%, rgba(255, 179, 0, 0.10), transparent 70%),
+    radial-gradient(ellipse 70% 160% at 100% 50%, rgba(126, 87, 194, 0.10), transparent 70%),
+    radial-gradient(ellipse 50% 140% at 70% 50%, rgba(229, 57, 53, 0.08), transparent 70%),
+    rgba(16, 14, 13, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .header-inner { padding: 1rem 1.5rem; }
+}
+
+/* Brand logo — real wordmark image */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.logo-img {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 260px;
+  object-fit: contain;
+}
+.logo--footer .logo-img { height: 32px; max-width: 200px; }
+@media (max-width: 480px) {
+  .logo-img { height: 36px; max-width: 200px; }
+}
+
+.nav {
+  display: none;
+  gap: 1.5rem;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .nav { display: flex; }
+}
+
+.nav a {
+  color: var(--text-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s;
+  padding: 0.5rem 0;
+}
+.nav a:hover { color: var(--gold); }
+.nav a.active {
+  color: var(--gold);
+  border-bottom: 2px solid var(--gold);
+}
+
+/* Language toggle */
+.lang {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+}
+.lang button {
+  min-height: 36px;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lang button[aria-pressed="true"] {
+  background: var(--sand);
+  color: var(--stage);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.lang button:hover:not([aria-pressed="true"]) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-1);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px) scale(0.98); }
+
+.btn-primary {
+  background: var(--red);
+  color: white;
+  border-color: var(--red);
+  box-shadow: 0 0 0 1px rgba(229, 57, 53, 0.4), 0 8px 24px rgba(229, 57, 53, 0.2);
+}
+.btn-primary:hover {
+  background: #f44336;
+  box-shadow: 0 0 24px rgba(229, 57, 53, 0.5);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--sand);
+  border-color: var(--line-strong);
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-telegram {
+  background: #229ED9;
+  color: white;
+  border-color: #229ED9;
+  min-height: 52px;
+  padding: 0 2rem;
+  font-size: 1rem;
+}
+.btn-telegram:hover { background: #1A8BC1; box-shadow: 0 0 30px rgba(34, 158, 217, 0.5); }
+
+.btn-sm {
+  min-height: 36px;
+  padding: 0 0.875rem;
+  font-size: 0.75rem;
+}
+
+/* Text-link CTA — minimalist alternative */
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  color: var(--text-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.btn-link:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+/* Mobile menu trigger */
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--sand);
+  cursor: pointer;
+}
+@media (min-width: 768px) {
+  .menu-btn { display: none; }
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: 80%;
+  max-width: 320px;
+  background: var(--stage-2);
+  border-left: 1px solid var(--line);
+  z-index: 100;
+  padding: 1.5rem;
+  flex-direction: column;
+  gap: 1rem;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+.mobile-menu.open {
+  display: flex;
+  transform: translateX(0);
+}
+.mobile-menu a {
+  padding: 0.875rem 0;
+  color: var(--sand);
+  font-size: 1.125rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+.mobile-menu a:hover { color: var(--gold); }
+
+.mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 90;
+}
+.mobile-backdrop.open { display: block; }
+
+/* Main */
+.main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+@media (min-width: 768px) {
+  .main { padding: 2.5rem 1.5rem 5rem; }
+}
+
+/* Sections */
+.section {
+  margin-bottom: 3rem;
+}
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.875rem;
+  color: var(--sand);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.25rem;
+}
+@media (min-width: 768px) {
+  .section-title { font-size: 2.25rem; }
+}
+
+.kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Panel base */
+.panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+@media (min-width: 768px) {
+  .panel { padding: 2rem; }
+}
+
+/* Beta banner */
+.beta-banner {
+  border: 1px dashed rgba(255, 179, 0, 0.4);
+  background: linear-gradient(180deg, rgba(255, 179, 0, 0.06), rgba(255, 179, 0, 0.02));
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.beta-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  color: var(--gold);
+  letter-spacing: 0.3em;
+}
+.beta-text {
+  font-size: 0.875rem;
+  color: var(--text-3);
+  flex: 1;
+  min-width: 220px;
+}
+
+/* Hero — multi-corner color glow matching brand identity */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 700px 500px at 5% 15%, rgba(255, 179, 0, 0.22), transparent 60%),
+    radial-gradient(ellipse 500px 400px at 10% 80%, rgba(255, 111, 0, 0.14), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 95% 40%, rgba(229, 57, 53, 0.28), transparent 60%),
+    radial-gradient(ellipse 600px 500px at 100% 95%, rgba(126, 87, 194, 0.20), transparent 60%),
+    radial-gradient(ellipse 400px 300px at 100% 5%, rgba(33, 150, 243, 0.12), transparent 60%),
+    linear-gradient(180deg, #1A1614, #100E0D);
+  border: 1px solid var(--line);
+  border-radius: 1.75rem;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold) 0%, #FF6F00 25%, var(--red) 55%, #7E57C2 80%, var(--blue) 100%);
+  z-index: 1;
+}
+@media (min-width: 768px) {
+  .hero { padding: 2rem 2rem; }
+}
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  color: var(--sand);
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  margin: 0.5rem 0 0.75rem;
+}
+.hero p {
+  max-width: 32rem;
+  margin: 0 auto;
+  color: var(--text-3);
+  font-size: 0.9375rem;
+}
+.hero .section { margin-bottom: 1.5rem; }
+
+/* Standalone voice strip — pill-height block, vertically centered between sections */
+.voice-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  /* Cancel 1.5rem of the section's 3rem margin-bottom above, mirror below.
+     Result: exactly 24px gap above the pill, 24px gap below. */
+  margin-top: -1.5rem;
+  margin-bottom: 1.5rem;
+}
+.hero-cta {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* KPI block — replaces pseudo-inputs */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.kpi {
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.kpi-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.kpi-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: var(--sand);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.kpi-value.muted { color: var(--text-3); font-size: 1.25rem; }
+
+/* Stat panel — big numbers */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.stat {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  color: var(--sand);
+  line-height: 1;
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   Auth state — guest vs authenticated
+   ============================================ */
+[data-auth="false"] .auth-only { display: none !important; }
+[data-auth="true"] .guest-only { display: none !important; }
+
+/* Profile chip — shown when authenticated */
+.profile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 4px 14px 4px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--sand);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+.profile-chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.profile-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--red));
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+
+/* Hero "community voice" — rotating quote pill, wraps long quotes */
+.hero-voice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto;
+  padding: 0.625rem 1.125rem 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--text-3);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  width: fit-content;
+  max-width: min(38rem, calc(100% - 2rem));
+  min-height: 44px;
+  transition: opacity 0.4s ease;
+  text-align: left;
+}
+.hero-voice-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(255, 179, 0, 0.6);
+  flex-shrink: 0;
+  align-self: center;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.hero-voice-text {
+  font-style: italic;
+  color: var(--sand);
+  line-height: 1.45;
+  flex: 1;
+  min-width: 0;
+}
+.hero-voice-text::before,
+.hero-voice-text::after {
+  font-family: 'Bebas Neue', Georgia, serif;
+  font-style: normal;
+  color: var(--gold);
+  font-size: 1.25em;
+  line-height: 0;
+  position: relative;
+  top: 0.15em;
+  opacity: 0.8;
+}
+.hero-voice-text::before {
+  content: '\201C'; /* " */
+  margin-right: 0.25rem;
+}
+.hero-voice-text::after {
+  content: '\201D'; /* " */
+  margin-left: 0.25rem;
+}
+.hero-voice.fading { opacity: 0; }
+@media (max-width: 520px) {
+  .hero-voice { font-size: 0.8125rem; }
+}
+
+/* Welcome strip in hero for authed users */
+.welcome-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  background: rgba(255, 179, 0, 0.08);
+  border: 1px solid rgba(255, 179, 0, 0.25);
+  border-radius: 999px;
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* Demo state toggle (prototype only) */
+.demo-toggle {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line-strong);
+  color: var(--text-2);
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.demo-toggle:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.demo-toggle::before {
+  content: '◐';
+  margin-right: 6px;
+  color: var(--gold);
+}
+
+/* Unified section icon — one quiet tint across all Pulse cards */
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(243, 234, 215, 0.08);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Countdown */
+.countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  background: rgba(255, 179, 0, 0.1);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 12px var(--gold);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Progress bars (accessible) */
+.bar-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+.bar-rank {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bar-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.bar-fill.gold { background: linear-gradient(90deg, var(--gold), #FF6F00); }
+.bar-fill.red { background: linear-gradient(90deg, var(--red), #FF6E40); }
+.bar-fill.blue { background: linear-gradient(90deg, var(--blue), #7E57C2); }
+.bar-fill.wave { background: linear-gradient(90deg, var(--gold), var(--red), var(--blue)); }
+.bar-label {
+  font-size: 0.875rem;
+  color: var(--text-2);
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+}
+.bar-label small {
+  font-size: 0.6875rem;
+  color: var(--text-4);
+  font-weight: 500;
+  margin-top: 2px;
+}
+.bar-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 999px;
+  min-width: 36px;
+  text-align: center;
+}
+
+/* Setlist row — compact list for archive */
+.setlist-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.015);
+}
+.setlist-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--text-2);
+  min-height: 64px;
+  transition: background 0.15s, padding-left 0.15s;
+}
+.setlist-row:last-child { border-bottom: none; }
+.setlist-row:hover {
+  background: rgba(255, 179, 0, 0.06);
+  padding-left: 1.5rem;
+}
+.setlist-row .date {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.125rem;
+  color: var(--sand);
+  letter-spacing: 0.04em;
+}
+.setlist-row .venue {
+  font-size: 0.9375rem;
+  color: var(--text-2);
+  font-weight: 600;
+}
+.setlist-row .venue small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-3);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.setlist-row .count {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.setlist-row .row-arrow {
+  width: 20px;
+  height: 20px;
+  color: var(--text-4);
+  transition: color 0.15s, transform 0.15s;
+}
+.setlist-row:hover .row-arrow {
+  color: var(--gold);
+  transform: translateX(4px);
+}
+.setlist-tag {
+  display: inline-flex;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 179, 0, 0.12);
+  color: var(--gold);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .setlist-row { grid-template-columns: 5rem 1fr auto; gap: 0.75rem; padding: 0.875rem 1rem; }
+  .setlist-row .count { display: none; }
+}
+
+/* Gig page — status + header + tracklist */
+.gig-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.gig-status.live {
+  background: rgba(255, 179, 0, 0.12);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  color: var(--gold);
+}
+.gig-status.final {
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  color: #90CAF9;
+}
+.gig-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--sand);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  margin: 0 0 1rem;
+}
+.gig-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  color: var(--text-3);
+  font-size: 0.9375rem;
+}
+.gig-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.gig-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin: 1.5rem 0 2rem;
+}
+.gig-stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.875rem;
+  color: var(--sand);
+  line-height: 1;
+}
+.gig-stat-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: 0.375rem;
+}
+
+/* Track card on gig page */
+.track-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.005));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.track-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.track-card-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex: 1;
+  min-width: 0;
+}
+.track-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  color: var(--text-3);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+.track-card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.375rem;
+  color: var(--sand);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+.track-card-artist {
+  font-size: 0.875rem;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 12px;
+  min-height: 36px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  text-decoration: none;
+}
+.role-pill.claimed {
+  background: rgba(76, 175, 80, 0.08);
+  border-color: rgba(76, 175, 80, 0.25);
+  color: #A5D6A7;
+}
+.role-pill.open {
+  background: rgba(255, 179, 0, 0.06);
+  border-color: rgba(255, 179, 0, 0.3);
+  color: var(--gold);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.role-pill.open:hover {
+  background: rgba(255, 179, 0, 0.14);
+}
+.role-pill.opt {
+  border-style: dashed;
+  color: var(--text-3);
+}
+.role-pill.required {
+  font-weight: 700;
+}
+.role-pill .role-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+.track-tag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 3px 8px;
+  background: rgba(255, 179, 0, 0.08);
+  border: 1px solid rgba(255, 179, 0, 0.25);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Setlist card (legacy — still used in some archive contexts) */
+.setlist {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.setlist:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+.setlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.setlist-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--sand);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.setlist-meta {
+  font-size: 0.75rem;
+  color: var(--text-4);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-top: 4px;
+}
+.track {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.875rem;
+}
+.track:first-of-type { border-top: none; }
+.track-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 179, 0, 0.15);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+}
+.track-title { color: var(--text-2); font-weight: 600; }
+.track-artist { color: var(--text-4); font-size: 0.75rem; margin-top: 2px; }
+.track-meta { font-size: 0.6875rem; color: var(--text-4); letter-spacing: 0.12em; text-transform: uppercase; }
+
+.show-more-btn {
+  background: none;
+  border: 1px solid var(--line-strong);
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-top: 0.75rem;
+  width: 100%;
+  min-height: 40px;
+  transition: all 0.15s;
+}
+.show-more-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.hidden-tracks { display: none; }
+.hidden-tracks.open { display: block; }
+
+/* Form */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 0.5rem;
+}
+.required-mark {
+  color: var(--red);
+  margin-left: 4px;
+}
+.form-input,
+.form-textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  color: var(--sand);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  min-height: 48px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.2);
+}
+.form-textarea {
+  min-height: 140px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-4);
+}
+.form-helper {
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  margin-top: 0.375rem;
+}
+.form-error {
+  font-size: 0.8125rem;
+  color: #FF6E6B;
+  margin-top: 0.375rem;
+  display: none;
+}
+.form-input[aria-invalid="true"],
+.form-textarea[aria-invalid="true"] {
+  border-color: var(--red);
+}
+.form-input[aria-invalid="true"] + .form-error,
+.form-textarea[aria-invalid="true"] + .form-error {
+  display: block;
+}
+.form-checkbox-wrap {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.form-checkbox {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.form-checkbox-label {
+  font-size: 0.875rem;
+  color: var(--text-2);
+  line-height: 1.5;
+  cursor: pointer;
+}
+.form-checkbox-label a {
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+.form-success {
+  display: none;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: #A5D6A7;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.25rem;
+}
+.form-success.show { display: block; }
+
+/* Organizer card */
+.org-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 640px) { .org-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .org-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.org-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.org-card.invite {
+  border-style: dashed;
+  border-color: rgba(255, 179, 0, 0.4);
+  background: linear-gradient(180deg, rgba(255, 179, 0, 0.05), transparent);
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+}
+.org-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--sand);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.org-role {
+  font-size: 0.875rem;
+  color: var(--text-3);
+}
+.org-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  color: var(--gold);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-top: 1px solid var(--line);
+  padding: 0.625rem 0 0;
+}
+.org-link:hover { color: #FFD54F; }
+
+/* Contact cards */
+.contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  color: var(--text-2);
+  min-height: 64px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.contact-row:hover {
+  border-color: var(--gold);
+  background: rgba(255, 179, 0, 0.04);
+}
+.contact-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.contact-value {
+  font-size: 1rem;
+  color: var(--sand);
+  font-weight: 600;
+}
+
+/* Login layout */
+.login-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .login-card { padding: 3rem; }
+}
+.login-card h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  color: var(--sand);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  margin: 0.75rem 0 1rem;
+}
+.login-card .lead {
+  color: var(--text-3);
+  max-width: 30rem;
+  margin: 0 auto 1.5rem;
+}
+.login-info {
+  display: flex;
+  gap: 0.75rem;
+  background: rgba(34, 158, 217, 0.08);
+  border: 1px solid rgba(34, 158, 217, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--text-2);
+  margin-bottom: 1.5rem;
+}
+.benefits {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 2rem 0 1.5rem;
+}
+@media (min-width: 640px) {
+  .benefits { grid-template-columns: repeat(3, 1fr); }
+}
+.benefit {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-3);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 110px;
+}
+.benefit svg { color: var(--gold); flex-shrink: 0; }
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--line);
+  background: var(--stage-2);
+  padding: 2rem 1.25rem;
+  margin-top: 4rem;
+}
+.footer-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--text-3);
+}
+@media (min-width: 768px) {
+  .footer-inner {
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+  }
+}
+.footer h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  color: var(--sand);
+  letter-spacing: 0.14em;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+}
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.footer-links a {
+  color: var(--text-3);
+  text-decoration: none;
+  padding: 4px 0;
+}
+.footer-links a:hover { color: var(--gold); }
+.footer-bottom {
+  max-width: 1440px;
+  margin: 1.5rem auto 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--text-4);
+}
+
+/* Utility */
+.grid-2 { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+@media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+.flex-between { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+.text-muted { color: var(--text-3); }
+.text-small { font-size: 0.875rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* Search/filter */
+.search-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.search-bar input {
+  flex: 1;
+  min-width: 220px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--sand);
+  font-size: 0.9375rem;
+  min-height: 44px;
+}
+.search-bar select {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 1rem;
+  color: var(--sand);
+  font-family: inherit;
+  font-size: 0.875rem;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+/* Refined "scene" panel — magazine-style compact dashboard */
+.scene-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+}
+@media (min-width: 768px) {
+  .scene-panel { padding: 2.25rem 2.5rem; }
+}
+.scene-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.scene-head h2 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--sand);
+  letter-spacing: 0.04em;
+}
+.scene-head-meta {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* KPI row — 4 large numbers, generous spacing */
+.scene-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem 1rem;
+  margin-bottom: 1.75rem;
+}
+@media (min-width: 720px) {
+  .scene-kpis { grid-template-columns: repeat(4, 1fr); gap: 1rem 2rem; }
+}
+.scene-kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1rem 1.125rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  min-height: 110px;
+  justify-content: space-between;
+  transition: border-color 0.18s;
+}
+.scene-kpi:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.scene-kpi-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1.125rem;
+  width: 18px;
+  height: 18px;
+  color: var(--text-3);
+  opacity: 0.5;
+  transition: opacity 0.18s, color 0.18s;
+  pointer-events: none;
+}
+.scene-kpi:hover .scene-kpi-icon {
+  opacity: 0.95;
+  color: var(--gold);
+}
+.scene-kpi-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.25rem;
+  color: var(--sand);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.scene-kpi-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: auto;
+}
+.scene-kpi-sub {
+  font-size: 0.6875rem;
+  color: var(--text-4);
+  font-weight: 500;
+  margin-top: 0.25rem;
+  line-height: 1.35;
+}
+/* Mini table inside a KPI cell — minimalist year breakdown */
+.scene-kpi.kpi-chart .scene-kpi-value { display: none; }
+.kpi-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  flex: 1;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+.kpi-table-row {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr 14px;
+  gap: 8px;
+  align-items: baseline;
+  padding: 3px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.06);
+}
+.kpi-table-row:last-child { border-bottom: none; }
+.kpi-table-year {
+  color: var(--text-3);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+}
+.kpi-table-value {
+  color: var(--sand);
+  font-weight: 600;
+  text-align: right;
+}
+.kpi-table-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+/* Peak — only star, no color change */
+.kpi-table-row.peak .kpi-table-flag::before {
+  content: '★';
+  color: var(--gold);
+}
+/* Current — brighter year + value, pulsing dot indicator */
+.kpi-table-row.current .kpi-table-year,
+.kpi-table-row.current .kpi-table-value {
+  color: var(--text-1);
+  font-weight: 700;
+}
+.kpi-table-row.current .kpi-table-flag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(255, 179, 0, 0.7);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* Trend row — sparkline gets its own line */
+.scene-trend {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.75rem;
+}
+.scene-trend-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.scene-trend-chart {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  height: 36px;
+  position: relative;
+}
+.scene-trend-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 28px;
+  position: relative;
+}
+.scene-trend-bar {
+  width: 100%;
+  background: rgba(255, 179, 0, 0.6);
+  border-radius: 2px 2px 0 0;
+  min-height: 3px;
+  transition: background 0.18s;
+}
+.scene-trend-col.peak .scene-trend-bar {
+  background: linear-gradient(180deg, var(--gold), var(--red));
+  box-shadow: 0 0 12px rgba(255, 179, 0, 0.3);
+}
+.scene-trend-col.current .scene-trend-bar {
+  background: rgba(255, 179, 0, 0.3);
+  border: 1px dashed rgba(255, 179, 0, 0.5);
+}
+.scene-trend-year {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-4);
+}
+.scene-trend-col.peak .scene-trend-year { color: var(--gold); }
+.scene-trend-note {
+  font-size: 0.8125rem;
+  color: var(--sand);
+  white-space: nowrap;
+  font-weight: 600;
+}
+.scene-trend-note span { color: var(--gold); }
+@media (max-width: 520px) {
+  .scene-trend { grid-template-columns: 1fr; gap: 0.75rem; }
+  .scene-trend-label, .scene-trend-note { text-align: center; }
+}
+
+/* Leaderboards — clean, less gold noise */
+.scene-leaderboards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem 2.5rem;
+  margin-bottom: 1.75rem;
+}
+@media (min-width: 640px) {
+  .scene-leaderboards { grid-template-columns: 1fr 1fr; }
+}
+.leader-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0 0 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--line);
+}
+.leader-title svg { color: var(--gold); flex-shrink: 0; }
+.leader-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.leader-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  column-gap: 0.875rem;
+  align-items: baseline;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.leader-row:last-child { border-bottom: none; }
+.leader-rank {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-4);
+  text-align: center;
+}
+.leader-block {
+  min-width: 0;
+}
+.leader-name {
+  color: var(--sand);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+.leader-sub {
+  color: var(--text-4);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.leader-value {
+  color: var(--sand);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-align: right;
+  justify-self: end;
+  align-self: baseline;
+}
+.leader-value small {
+  color: var(--text-4);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  margin-left: 3px;
+  letter-spacing: 0.04em;
+}
+
+/* Footer strip */
+.scene-footer {
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  align-items: center;
+  line-height: 1.5;
+}
+.scene-footer strong { color: var(--sand); font-weight: 700; }
+.scene-footer .dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-4);
+  display: inline-block;
+}
+
+/* Next gig — whole card is clickable, no bright button */
+.next-gig-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.next-gig-card:hover {
+  border-color: rgba(255, 179, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+}
+.next-gig-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-3);
+  white-space: nowrap;
+  transition: color 0.18s, gap 0.18s;
+}
+.next-gig-cta svg {
+  transition: transform 0.18s;
+}
+.next-gig-card:hover .next-gig-cta {
+  color: var(--gold);
+  gap: 0.625rem;
+}
+.next-gig-card:hover .next-gig-cta svg {
+  transform: translateX(2px);
+}
+
+/* Partner cards */
+.partners-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+@media (min-width: 768px) {
+  .partners-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.partner-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.625rem;
+  padding: 1.5rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  min-height: 140px;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+}
+.partner-card:hover {
+  border-color: rgba(255, 179, 0, 0.5);
+  background: rgba(255, 179, 0, 0.04);
+  transform: translateY(-2px);
+}
+.partner-icon {
+  color: var(--text-3);
+  opacity: 0.7;
+}
+.partner-card:hover .partner-icon { color: var(--gold); opacity: 1; }
+.partner-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.625rem;
+  color: var(--sand);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+.partner-cat {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* Modal — propose song, claim flows */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.modal-backdrop.open {
+  display: flex;
+  opacity: 1;
+}
+.modal {
+  background: var(--stage-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  max-width: 560px;
+  width: 100%;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.25s ease;
+}
+.modal-backdrop.open .modal {
+  transform: translateY(0) scale(1);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.75rem;
+  color: var(--sand);
+  letter-spacing: 0.03em;
+  margin: 0.25rem 0 0;
+  line-height: 1.05;
+}
+.modal-close {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.modal-close:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Role chips (selectable) */
+.role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  min-height: 40px;
+  color: var(--text-2);
+  user-select: none;
+  transition: all 0.15s;
+}
+.role-chip:hover {
+  border-color: rgba(255, 179, 0, 0.4);
+}
+.role-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.role-chip:has(input:checked) {
+  background: rgba(255, 179, 0, 0.12);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 600;
+}
+.role-chip:focus-within {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  color: #A5D6A7;
+  padding: 0.875rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 110;
+  pointer-events: none;
+  max-width: calc(100% - 2rem);
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.error {
+  background: rgba(229,57,53,0.15);
+  border-color: rgba(229,57,53,0.4);
+  color: #FF8A80;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .live-dot { animation: none; opacity: 1; }
+}
+
+
+/* sr-only utility for hash-based version */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+  </style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="brand-wave" aria-hidden="true"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="#home" class="logo" aria-label="The Jammers — home">
+      <img src="brand/the-jammers-logo.webp" alt="The Jammers" class="logo-img" width="480" height="82">
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#home" data-nav="home">Home</a>
+      <a href="#archive" data-nav="archive">Setlists</a>
+      <a href="#about" data-nav="about">About</a>
+      <a href="#faq" data-nav="faq">FAQ</a>
+    </nav>
+    <div style="display:flex; gap:0.75rem; align-items:center;">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" aria-pressed="true" aria-label="English">EN</button>
+        <button type="button" aria-pressed="false" aria-label="Русский">RU</button>
+      </div>
+      <a href="#login" class="btn btn-primary btn-sm guest-only" id="signin-desktop">Sign in</a>
+      <a href="#profile" class="profile-chip auth-only" id="profile-chip-desktop" style="display:none">
+        <span class="profile-avatar" id="profile-avatar">IK</span>
+        <span id="profile-name">@ilya_k</span>
+      </a>
+      <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-backdrop" id="mobile-backdrop"></div>
+<nav class="mobile-menu" id="mobile-menu" aria-label="Mobile">
+  <button style="align-self:flex-end; background:none; border:none; color:var(--sand); cursor:pointer; min-width:44px; min-height:44px;" id="menu-close" aria-label="Close menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+  </button>
+  <a href="#home" data-nav="home">Home</a>
+  <a href="#archive" data-nav="archive">Setlists</a>
+  <a href="#about" data-nav="about">About</a>
+  <a href="#faq" data-nav="faq">FAQ</a>
+  <a href="#login" class="btn btn-primary guest-only" style="margin-top:1rem">Sign in with Telegram</a>
+  <button class="btn btn-ghost auth-only" style="margin-top:1rem" onclick="signOut()">Sign out</button>
+</nav>
+
+
+  <section data-page="home" id="page-home">
+<!-- Beta banner -->
+    <div class="beta-banner" role="status">
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <span class="beta-tag">BETA</span>
+        <span class="beta-text">Some flows are still rough. Send feedback via the <a href="faq.html#feedback" style="color:var(--gold);text-decoration:underline">FAQ form</a> if anything breaks.</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero section">
+      <!-- GUEST: gig CTA is primary, sign-in is secondary -->
+      <div class="guest-only">
+        <span class="kicker">Cyprus music community</span>
+        <h1>We Are The Jammers</h1>
+        <p>Where strangers become bandmates and songs turn into living setlists. One jam at a time.</p>
+      </div>
+
+      <!-- AUTHED: same primary, different subtitle + welcome -->
+      <div class="auth-only">
+        <span class="welcome-strip">
+          <span style="width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold);" aria-hidden="true"></span>
+          Welcome back, <span id="welcome-user">@ilya_k</span>
+        </span>
+        <h1>Your next gig is in 7 days</h1>
+        <p>Down Town Live · Limassol · 2 June · open seats waiting.</p>
+      </div>
+
+    </section>
+
+
+    <!-- Next gig: clean KPI blocks, no pseudo-inputs, no duplicate fields -->
+    <section class="section" aria-labelledby="next-gig">
+      <div class="panel">
+        <div class="flex-between" style="margin-bottom:1.5rem">
+          <div>
+            <span class="countdown">
+              <span class="live-dot" aria-hidden="true"></span>
+              Next up · in 7 days
+            </span>
+            <h2 id="next-gig" class="section-title" style="margin-top:0.75rem; margin-bottom:0">Down Town Live — 2 June 2026</h2>
+          </div>
+          <a href="#gig-active" class="btn btn-primary">Sign up to play →</a>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              Date
+            </div>
+            <div class="kpi-value">2 June 2026</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              Doors open
+            </div>
+            <div class="kpi-value">19:00</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Venue
+            </div>
+            <div class="kpi-value">Down Town Live · Limassol</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community voice strip — sits under the next gig block -->
+    <div class="voice-strip">
+      <div class="hero-voice" aria-live="off">
+        <span class="hero-voice-dot" aria-hidden="true"></span>
+        <span class="hero-voice-text" lang="ru" id="hero-voice-text">Репать будем?</span>
+      </div>
+    </div>
+
+    <!-- The scene — compact panel (replaces Stats + Pulse + People) -->
+    <section class="section" aria-labelledby="scene-title">
+      <div class="scene-panel">
+        <div class="scene-head">
+          <h2 id="scene-title" class="section-title" style="font-size:1.75rem">The scene</h2>
+          <span class="text-muted text-small">All gigs since 2023</span>
+        </div>
+
+        <!-- 7 KPI tiles + 1 mini-chart in a 4×2 grid -->
+        <div class="scene-kpis">
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0014 0v-2M12 19v3"/></svg>
+            <div class="scene-kpi-value">35</div>
+            <div>
+              <div class="scene-kpi-label">Gigs played</div>
+            </div>
+          </div>
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <div class="scene-kpi-value">858</div>
+            <div>
+              <div class="scene-kpi-label">Tracks</div>
+            </div>
+          </div>
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="scene-kpi-value">755</div>
+            <div>
+              <div class="scene-kpi-label">Unique songs</div>
+            </div>
+          </div>
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <div class="scene-kpi-value">389</div>
+            <div>
+              <div class="scene-kpi-label">Musicians</div>
+            </div>
+          </div>
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34M18 2H6v7a6 6 0 0012 0V2z"/></svg>
+            <div class="scene-kpi-value">36</div>
+            <div>
+              <div class="scene-kpi-label">Largest set</div>
+              <div class="scene-kpi-sub">The Jammers · 12 Jun 2023</div>
+            </div>
+          </div>
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <div class="scene-kpi-value">2025</div>
+            <div>
+              <div class="scene-kpi-label">Peak year</div>
+              <div class="scene-kpi-sub">336 tracks released</div>
+            </div>
+          </div>
+          <div class="scene-kpi">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <div class="scene-kpi-value">4</div>
+            <div>
+              <div class="scene-kpi-label">Years on stage</div>
+              <div class="scene-kpi-sub">Since 2023</div>
+            </div>
+          </div>
+          <div class="scene-kpi kpi-chart">
+            <svg class="scene-kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            <div class="scene-kpi-value"></div>
+            <div class="kpi-table" role="table" aria-label="Tracks per year">
+              <div class="kpi-table-row">
+                <span class="kpi-table-year">'23</span>
+                <span class="kpi-table-value">193</span>
+                <span class="kpi-table-flag" aria-hidden="true"></span>
+              </div>
+              <div class="kpi-table-row">
+                <span class="kpi-table-year">'24</span>
+                <span class="kpi-table-value">213</span>
+                <span class="kpi-table-flag" aria-hidden="true"></span>
+              </div>
+              <div class="kpi-table-row peak">
+                <span class="kpi-table-year">'25</span>
+                <span class="kpi-table-value">336</span>
+                <span class="kpi-table-flag" aria-label="peak year"></span>
+              </div>
+              <div class="kpi-table-row current">
+                <span class="kpi-table-year">'26</span>
+                <span class="kpi-table-value">116</span>
+                <span class="kpi-table-flag" aria-label="ongoing"></span>
+              </div>
+            </div>
+            <div>
+              <div class="scene-kpi-label">Tracks by year</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two leaderboards side-by-side -->
+        <div class="scene-leaderboards">
+          <div>
+            <h3 class="leader-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0014 0v-2M12 19v3"/></svg>
+              Top musicians
+            </h3>
+            <ol class="leader-list">
+              <li class="leader-row">
+                <span class="leader-rank">01</span>
+                <div class="leader-block">
+                  <div class="leader-name">@ilya_doronin</div>
+                  <div class="leader-sub">Bass · since 2023</div>
+                </div>
+                <span class="leader-value">34<small>gigs</small></span>
+              </li>
+              <li class="leader-row">
+                <span class="leader-rank">02</span>
+                <div class="leader-block">
+                  <div class="leader-name">@ozz_drums</div>
+                  <div class="leader-sub">Drums · since 2023</div>
+                </div>
+                <span class="leader-value">28<small>gigs</small></span>
+              </li>
+              <li class="leader-row">
+                <span class="leader-rank">03</span>
+                <div class="leader-block">
+                  <div class="leader-name">@meinlp</div>
+                  <div class="leader-sub">Guitar · since 2024</div>
+                </div>
+                <span class="leader-value">20<small>gigs</small></span>
+              </li>
+            </ol>
+          </div>
+          <div>
+            <h3 class="leader-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.4 1 6.2L12 16.8 6.5 19.5l1-6.2L3 8.9 9 8z"/></svg>
+              Top artists
+            </h3>
+            <ol class="leader-list">
+              <li class="leader-row">
+                <span class="leader-rank">01</span>
+                <div class="leader-block">
+                  <div class="leader-name">Linkin Park</div>
+                  <div class="leader-sub">Bring Me to Life · In the End</div>
+                </div>
+                <span class="leader-value">21<small>plays</small></span>
+              </li>
+              <li class="leader-row">
+                <span class="leader-rank">02</span>
+                <div class="leader-block">
+                  <div class="leader-name">Korn</div>
+                  <div class="leader-sub">Most-played 2024</div>
+                </div>
+                <span class="leader-value">14<small>plays</small></span>
+              </li>
+              <li class="leader-row">
+                <span class="leader-rank">03</span>
+                <div class="leader-block">
+                  <div class="leader-name">Muse</div>
+                  <div class="leader-sub">Most-played 2025</div>
+                </div>
+                <span class="leader-value">13<small>plays</small></span>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Archive CTA -->
+    <section class="section">
+      <div class="panel" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <div>
+          <span class="kicker">Published setlists</span>
+          <h2 class="section-title" style="margin:0">Browse the full archive</h2>
+        </div>
+        <a href="#archive" class="btn btn-ghost">
+          Open archive
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </section>
+  </section>
+
+  <section data-page="archive" id="page-archive">
+<!-- Page header -->
+    <section class="section">
+      <span class="kicker">Published archive</span>
+      <h1 class="section-title" style="font-size:2.5rem; margin-bottom:0.5rem">Setlists</h1>
+      <p class="text-muted" style="max-width:42rem">Every published line-up since 2023. Filter, search and re-open the energy.</p>
+    </section>
+
+    <!-- Slim summary strip — not the full pulse panel -->
+    <section class="section">
+      <div class="panel" style="padding:1.25rem 1.5rem">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:1.25rem;">
+          <div>
+            <div class="kpi-label">Gigs in archive</div>
+            <div style="font-family:'Bebas Neue'; font-size:1.75rem; color:var(--sand)">35</div>
+          </div>
+          <div>
+            <div class="kpi-label">Tracks performed</div>
+            <div style="font-family:'Bebas Neue'; font-size:1.75rem; color:var(--sand)">858</div>
+          </div>
+          <div>
+            <div class="kpi-label">Unique songs</div>
+            <div style="font-family:'Bebas Neue'; font-size:1.75rem; color:var(--sand)">755</div>
+          </div>
+          <div>
+            <div class="kpi-label">Musicians on stage</div>
+            <div style="font-family:'Bebas Neue'; font-size:1.75rem; color:var(--sand)">389</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & filter -->
+    <section class="section">
+      <form class="search-bar" role="search" aria-label="Filter setlists" onsubmit="event.preventDefault(); applyFilter();">
+        <label class="sr-only" for="q">Search by song or artist</label>
+        <input id="q" type="search" placeholder="Search song, artist or musician…">
+        <label class="sr-only" for="year">Year</label>
+        <select id="year">
+          <option value="">All years</option>
+          <option>2026</option>
+          <option>2025</option>
+          <option>2024</option>
+          <option>2023</option>
+        </select>
+        <button type="submit" class="btn btn-ghost">Apply</button>
+      </form>
+    </section>
+
+    <!-- Setlist list — simple rows, no song previews, no brand prefix -->
+    <section class="section" aria-labelledby="setlist-list-title">
+      <h2 id="setlist-list-title" class="sr-only">Setlist results</h2>
+
+      <div class="setlist-list">
+        <a href="#gig-archived" class="setlist-row" data-year="2026">
+          <span class="date">19 Apr 2026</span>
+          <span class="venue">Limassol <small>18:00</small></span>
+          <span class="count">22 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2026">
+          <span class="date">22 Mar 2026</span>
+          <span class="venue">Larnaca <small>19:00</small></span>
+          <span class="count">23 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2026">
+          <span class="date">1 Mar 2026</span>
+          <span class="venue">Nicosia <small>20:00</small></span>
+          <span class="count">19 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2026">
+          <span class="date">8 Feb 2026</span>
+          <span class="venue">Limassol <small>19:00</small></span>
+          <span class="count">22 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2026">
+          <span class="date">18 Jan 2026</span>
+          <span class="venue">Paphos <small>18:30</small></span>
+          <span class="count">22 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">28 Dec 2025</span>
+          <span class="venue">Paphos <small>18:30 · NYE warm-up</small></span>
+          <span class="count">22 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">14 Dec 2025</span>
+          <span class="venue">Limassol <small>19:00</small></span>
+          <span class="count">22 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">16 Nov 2025</span>
+          <span class="venue">Nicosia <small>20:00 · Featured</small></span>
+          <span class="count">26 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">31 Oct 2025</span>
+          <span class="venue">Limassol <small>21:00 · Halloween</small></span>
+          <span class="count">24 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">12 Oct 2025</span>
+          <span class="venue">Larnaca <small>19:00</small></span>
+          <span class="count">24 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">14 Sep 2025</span>
+          <span class="venue">Nicosia <small>20:00</small></span>
+          <span class="count">21 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gig-archived" class="setlist-row" data-year="2025">
+          <span class="date">24 Jul 2025</span>
+          <span class="venue">Limassol <small>21:00 · Summer night</small></span>
+          <span class="count">25 tracks</span>
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <!-- Empty state on filter (hidden by default) -->
+      <div id="empty-state" style="display:none; text-align:center; padding:3rem 1rem;">
+        <div style="font-family:'Bebas Neue'; font-size:2rem; color:var(--text-3); margin-bottom:0.5rem">No setlists match your filter</div>
+        <p class="text-muted">Try a different year or clear the search.</p>
+      </div>
+
+      <!-- Pagination -->
+      <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:2rem">
+        <button class="btn btn-ghost btn-sm" disabled style="opacity:0.4">← Newer</button>
+        <span style="display:inline-flex; align-items:center; padding:0 1rem; color:var(--text-3); font-size:0.875rem">Page 1 of 6</span>
+        <button class="btn btn-ghost btn-sm">Older →</button>
+      </div>
+    </section>
+  </section>
+
+  <section data-page="about" id="page-about">
+<!-- Hero with image overlay -->
+    <section class="section" style="position:relative; overflow:hidden; border-radius:2rem; border:1px solid var(--line); min-height:380px;">
+      <div style="position:absolute; inset:0; background:
+          linear-gradient(180deg, rgba(16,14,13,0.3), rgba(16,14,13,0.92) 70%),
+          radial-gradient(ellipse at top, rgba(229,57,53,0.3), transparent 70%),
+          repeating-linear-gradient(45deg, #2a1f1c 0 8px, #1a1614 8px 16px);
+          opacity:0.9;" aria-hidden="true"></div>
+      <div style="position:relative; padding:3rem 1.5rem; display:flex; flex-direction:column; justify-content:flex-end; min-height:380px;">
+        <span class="kicker">The Jammers</span>
+        <h1 class="font-display" style="font-size:clamp(2.5rem, 7vw, 4.5rem); color:var(--sand); letter-spacing:0.04em; margin:0.5rem 0 1rem;">About us</h1>
+        <p style="max-width:42rem; color:var(--text-2); font-size:1.0625rem;">
+          The Jammers is a community where songs turn into living setlists, strangers become bandmates, and every gig leaves momentum for the next.
+        </p>
+        <p style="max-width:42rem; color:var(--text-3); margin-top:0.75rem;">
+          We build evenings around shared energy and clear coordination — so when the next song starts, every musician knows their cue.
+        </p>
+      </div>
+    </section>
+
+    <!-- Contacts (real mailto / tel / Telegram links) -->
+    <section class="section" aria-labelledby="contact-title">
+      <span class="kicker">Get in touch</span>
+      <h2 id="contact-title" class="section-title">Talk to the team</h2>
+      <p class="text-muted mb-3" style="max-width:42rem">For gigs, partnerships, coordination or anything that needs a real reply.</p>
+
+      <div class="grid-2">
+        <div>
+          <a href="https://t.me/kinteus" class="contact-row" rel="noopener" aria-label="Telegram @kinteus">
+            <div>
+              <div class="contact-label">Telegram</div>
+              <div class="contact-value">@kinteus</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          </a>
+          <a href="mailto:maksim.naumov.music@gmail.com" class="contact-row" aria-label="Email maksim.naumov.music@gmail.com">
+            <div>
+              <div class="contact-label">Email</div>
+              <div class="contact-value">maksim.naumov.music@gmail.com</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          </a>
+          <a href="tel:+35799250122" class="contact-row" aria-label="Phone +357 99 250122">
+            <div>
+              <div class="contact-label">Phone</div>
+              <div class="contact-value">+357 99 250122</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          </a>
+        </div>
+
+        <div class="panel">
+          <span class="kicker">Community moment</span>
+          <h3 class="font-display" style="font-size:1.5rem; color:var(--sand); margin:0.25rem 0 0.75rem;">A night with the family</h3>
+          <p class="text-muted text-small">
+            Photo gallery is wired up — every future gig and backstage moment will land here.
+            The next batch arrives after the May 27 show.
+          </p>
+          <div style="margin-top:1.25rem; aspect-ratio:16/9; border-radius:var(--radius-md); background:
+              linear-gradient(180deg, rgba(255,179,0,0.05), rgba(229,57,53,0.1)),
+              repeating-linear-gradient(135deg, #2a1f1c 0 6px, #1a1614 6px 12px);
+              border:1px solid var(--line); display:flex; align-items:center; justify-content:center;">
+            <span style="color:var(--text-4); font-size:0.875rem; letter-spacing:0.14em; text-transform:uppercase">[ Gallery preview ]</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Organizers: balanced 3-column grid (5 people + invite card = 6 cells) -->
+    <section class="section" aria-labelledby="org-title">
+      <span class="kicker">Organisers</span>
+      <h2 id="org-title" class="section-title">People moving the scene forward</h2>
+
+      <div class="org-grid">
+        <article class="org-card">
+          <h3 class="org-name">Maksim Naumov</h3>
+          <p class="org-role">Bad Boy, dad, grumbler</p>
+          <a href="https://t.me/kinteus" class="org-link" rel="noopener">Telegram @kinteus →</a>
+        </article>
+        <article class="org-card">
+          <h3 class="org-name">Anastasia Ivchenko</h3>
+          <p class="org-role">Heart &amp; soul of the community</p>
+          <a href="https://t.me/ana_ivchenko" class="org-link" rel="noopener">Telegram @ana_ivchenko →</a>
+        </article>
+        <article class="org-card">
+          <h3 class="org-name">Andrey Krotov</h3>
+          <p class="org-role">Machine, ruler, legend</p>
+          <a href="https://t.me/A_Krotov" class="org-link" rel="noopener">Telegram @A_Krotov →</a>
+        </article>
+        <article class="org-card">
+          <h3 class="org-name">Alexey Bursan</h3>
+          <p class="org-role">Grey eminence</p>
+          <a href="https://t.me/bodomic" class="org-link" rel="noopener">Telegram @bodomic →</a>
+        </article>
+        <article class="org-card">
+          <h3 class="org-name">Alesya</h3>
+          <p class="org-role">Cheerful event-maker</p>
+          <a href="https://t.me/alesichd" class="org-link" rel="noopener">Telegram @alesichd →</a>
+        </article>
+        <article class="org-card invite">
+          <span class="kicker" style="color:var(--gold)">Open seat</span>
+          <h3 class="org-name">Want to help?</h3>
+          <p class="org-role">We're growing the crew — sound, photo, hospitality, anything in between.</p>
+          <a href="https://t.me/kinteus" class="org-link" rel="noopener">Write to @kinteus →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Partners -->
+    <section class="section" aria-labelledby="partner-title">
+      <span class="kicker">Partners</span>
+      <h2 id="partner-title" class="section-title">Brands that lift the night</h2>
+
+      <div class="partners-grid">
+        <a href="https://t.me/kinteus" class="partner-card" rel="noopener" aria-label="GoSound — sound & gear partner">
+          <svg class="partner-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="4" y="3" width="16" height="18" rx="2"/>
+            <circle cx="12" cy="9" r="2"/>
+            <circle cx="12" cy="15" r="3"/>
+          </svg>
+          <div class="partner-logo">GoSound</div>
+          <div class="partner-cat">Sound &amp; gear</div>
+        </a>
+        <a href="https://t.me/kinteus" class="partner-card" rel="noopener" aria-label="Muse — music store partner">
+          <svg class="partner-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+          <div class="partner-logo">Muse</div>
+          <div class="partner-cat">Music store</div>
+        </a>
+        <a href="https://t.me/kinteus" class="partner-card" rel="noopener" aria-label="Lyra — studio partner">
+          <svg class="partner-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v10M8 9c2 6 6 6 8 0"/>
+          </svg>
+          <div class="partner-logo">Lyra</div>
+          <div class="partner-cat">Studio space</div>
+        </a>
+        <a href="https://t.me/kinteus" class="partner-card" rel="noopener" aria-label="Drum4Fun — drum lessons partner">
+          <svg class="partner-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <ellipse cx="12" cy="7" rx="8" ry="3"/>
+            <path d="M4 7v10c0 1.66 3.58 3 8 3s8-1.34 8-3V7"/>
+            <path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>
+          </svg>
+          <div class="partner-logo">Drum4Fun</div>
+          <div class="partner-cat">Drum lessons</div>
+        </a>
+      </div>
+
+      <!-- Become a partner CTA -->
+      <div class="panel" style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; justify-content:space-between; padding:1.25rem 1.5rem;">
+        <div style="flex:1; min-width:240px;">
+          <h3 class="font-display" style="font-size:1.25rem; color:var(--sand); margin:0 0 0.25rem;">Want to be on this row?</h3>
+          <p class="text-muted text-small" style="margin:0">Venues, gear brands, studios, hospitality — write to the team.</p>
+        </div>
+        <a href="https://t.me/kinteus" class="btn btn-ghost" rel="noopener">
+          Become a partner
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </section>
+  </section>
+
+  <section data-page="faq" id="page-faq">
+<!-- Header -->
+    <section class="section">
+      <span class="kicker">FAQ</span>
+      <h1 class="section-title" style="font-size:2.5rem; margin:0.5rem 0 0.5rem">How The Jammers works</h1>
+      <p class="text-muted" style="max-width:42rem">Everything you need: how to join in, what line-up roles mean, and how to send feedback to the team.</p>
+    </section>
+
+    <!-- Quick start + help -->
+    <section class="section grid-2">
+      <div class="panel">
+        <span class="kicker">Quick start</span>
+        <h2 class="font-display" style="font-size:1.75rem; color:var(--sand); margin:0.25rem 0 1.25rem;">Join without breaking the line-up</h2>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div style="display:flex; gap:0.875rem; align-items:flex-start">
+            <span style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:rgba(255,179,0,0.15); color:var(--gold); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:0.875rem;">1</span>
+            <div>
+              <strong style="color:var(--sand)">Look first</strong>
+              <p class="text-small text-muted" style="margin:2px 0 0">Open the current setlist, see open seats, close the real gaps before bringing new songs.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start">
+            <span style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:rgba(255,179,0,0.15); color:var(--gold); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:0.875rem;">2</span>
+            <div>
+              <strong style="color:var(--sand)">Sign up honestly</strong>
+              <p class="text-small text-muted" style="margin:2px 0 0">Only take parts you can actually deliver. The line-up stays reliable that way.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start">
+            <span style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:rgba(255,179,0,0.15); color:var(--gold); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:0.875rem;">3</span>
+            <div>
+              <strong style="color:var(--sand)">Ask in advance</strong>
+              <p class="text-small text-muted" style="margin:2px 0 0">Question? Drop it in feedback early, not at the deadline.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="kicker">Need help?</span>
+        <h2 class="font-display" style="font-size:1.75rem; color:var(--sand); margin:0.25rem 0 1rem;">What happens after feedback</h2>
+        <p>Your message lands in the team's Telegram immediately, so product bugs, unclear rules and gig-specific questions reach the people who can fix them.</p>
+        <p class="text-muted text-small" style="margin-top:0.75rem">The best feedback names the gig, the song, and the exact moment things felt off.</p>
+      </div>
+    </section>
+
+    <!-- Rules -->
+    <section class="section panel" aria-labelledby="rules-title">
+      <span class="kicker">Participation rules</span>
+      <h2 id="rules-title" class="font-display" style="font-size:1.75rem; color:var(--sand); margin:0.25rem 0 1rem;">How it works</h2>
+      <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.625rem;">
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--gold); flex-shrink:0">●</span><span>Check the current setlist, already-claimed songs and open seats.</span></li>
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--gold); flex-shrink:0">●</span><span>If you see your role — claim it right away.</span></li>
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--gold); flex-shrink:0">●</span><span>If the song isn't there yet, propose it only after searching.</span></li>
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--gold); flex-shrink:0">●</span><span>If the gig is closed, optional positions can still be requested via the song's author.</span></li>
+      </ul>
+
+      <h3 class="font-display" style="font-size:1.25rem; color:var(--sand); margin:1.5rem 0 0.75rem;">Things to remember</h3>
+      <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.625rem;">
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--red); flex-shrink:0">●</span><span>Only sign up for parts you can actually close.</span></li>
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--red); flex-shrink:0">●</span><span>If your plans change, free the slot as early as possible.</span></li>
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--red); flex-shrink:0">●</span><span>Respect the final set and the song author's calls on optional positions.</span></li>
+      </ul>
+    </section>
+
+    <!-- Line-up details -->
+    <section class="section panel" aria-labelledby="lineup-title">
+      <span class="kicker">Line-up technical details</span>
+      <h2 id="lineup-title" class="font-display" style="font-size:1.75rem; color:var(--sand); margin:0.25rem 0 1rem;">What roles in the setlist mean</h2>
+      <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.625rem;">
+        <li><strong style="color:var(--gold)">Required</strong> — needed for the song to count as ready.</li>
+        <li><strong style="color:var(--blue)">OPT / Optional</strong> — adds colour and energy but doesn't block readiness.</li>
+        <li><strong style="color:var(--sand)">Playback</strong> — adds context to a song but isn't a live part.</li>
+      </ul>
+
+      <h3 class="font-display" style="font-size:1.25rem; color:var(--sand); margin:1.5rem 0 0.75rem;">Before you sign up</h3>
+      <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.625rem;">
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--gold); flex-shrink:0">●</span><span>Double-check the key, playback, author's notes and the rest of the setlist.</span></li>
+        <li style="display:flex; gap:0.625rem; align-items:flex-start"><span style="color:var(--gold); flex-shrink:0">●</span><span>If you want to invite someone, use the invite button on the relevant cell.</span></li>
+      </ul>
+    </section>
+
+    <!-- Feedback form -->
+    <section class="section panel" id="feedback" aria-labelledby="feedback-title">
+      <div style="display:flex; gap:0.75rem; align-items:center; margin-bottom:0.5rem;">
+        <span style="width:36px; height:36px; border-radius:50%; background:rgba(255,179,0,0.15); color:var(--gold); display:inline-flex; align-items:center; justify-content:center;" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </span>
+        <span class="kicker" style="margin:0">Feedback</span>
+      </div>
+      <h2 id="feedback-title" class="font-display" style="font-size:1.75rem; color:var(--sand); margin:0.25rem 0 0.5rem;">Send a message to the team</h2>
+      <p class="text-muted text-small mb-3">Be specific — which gig, song or screen triggered the question. The more concrete, the faster we can fix it.</p>
+
+      <div class="form-success" id="form-success" role="status" aria-live="polite">
+        <strong>Message sent.</strong> The team will reply via your contact above. Thanks for keeping the scene tight.
+      </div>
+
+      <form id="feedback-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="name">Your name <span style="color:var(--text-4); font-weight:400; font-size:0.8125rem">(optional)</span></label>
+          <input id="name" name="name" type="text" class="form-input" placeholder="How should we address you?" autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="contact">Contact for reply<span class="required-mark" aria-hidden="true">*</span></label>
+          <input id="contact" name="contact" type="text" class="form-input" placeholder="@telegram, email or phone" required aria-required="true" aria-describedby="contact-error">
+          <div id="contact-error" class="form-error" role="alert">Please leave at least one way to reach you.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="message">Message<span class="required-mark" aria-hidden="true">*</span></label>
+          <textarea id="message" name="message" class="form-textarea" placeholder="Which gig, song or screen prompted this? What did you expect to happen?" required aria-required="true" minlength="10" aria-describedby="message-error message-helper"></textarea>
+          <div id="message-error" class="form-error" role="alert">Please write at least 10 characters so we can act on it.</div>
+          <div id="message-helper" class="form-helper">10 characters minimum. The more context, the faster the fix.</div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-checkbox-wrap">
+            <input id="consent" type="checkbox" class="form-checkbox" required aria-required="true" aria-describedby="consent-error">
+            <label for="consent" class="form-checkbox-label">
+              I agree that my contact info will be used to reply to this message.
+              See our <a href="#privacy">privacy policy</a> for details.<span class="required-mark" aria-hidden="true">*</span>
+            </label>
+          </div>
+          <div id="consent-error" class="form-error" role="alert" style="margin-left:34px">You need to agree before we can send the message.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="min-width:200px">
+          Send message
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+    </section>
+  </section>
+
+  <section data-page="login" id="page-login">
+<div class="login-card">
+      <span class="kicker">Telegram auth</span>
+      <h1>Sign in to join setlists &amp; manage invitations</h1>
+      <p class="lead">Your Telegram account becomes the single entry point for invites, line-ups and musician coordination.</p>
+
+      <div class="login-info">
+        <span style="color:#67BFEC; flex-shrink:0;" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </span>
+        <span>Telegram confirms your identity in its own secure flow. We never see your password — you'll be returned to your profile when it's done.</span>
+      </div>
+
+      <div style="display:flex; justify-content:center;">
+        <button class="btn btn-telegram" type="button" onclick="fakeLogin()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 4.5L2.5 11.5l5 1.7 11-7-9 8.5L9 19.5l3-3 4 3 5.5-15z"/></svg>
+          Continue with Telegram
+        </button>
+      </div>
+
+      <div class="benefits">
+        <div class="benefit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <strong style="color:var(--sand)">Claim open spots</strong>
+          <span>Take any vacant role in a live setlist.</span>
+        </div>
+        <div class="benefit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
+          <strong style="color:var(--sand)">Manage invites</strong>
+          <span>Accept or decline invitations in one place.</span>
+        </div>
+        <div class="benefit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <strong style="color:var(--sand)">Stay discoverable</strong>
+          <span>Keep your instruments up to date so others can find you.</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
+        <a href="#archive" class="btn btn-ghost">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          Browse gigs first
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section data-page="gig-active" id="page-gig-active">
+<!-- Back link -->
+    <a href="#home" class="btn-link" style="margin-bottom:1.5rem">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to home
+    </a>
+
+    <!-- Gig header -->
+    <header style="margin-bottom:2rem">
+      <span class="gig-status live">
+        <span class="live-dot" aria-hidden="true"></span>
+        Live board · accepting claims
+      </span>
+      <h1 class="gig-title">Down Town Live — 2 June 2026</h1>
+      <div class="gig-meta">
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Tuesday, 2 Jun</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 19:00</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg> Down Town Live, Limassol</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z"/></svg> 8 jammers signed</span>
+      </div>
+    </header>
+
+    <!-- Gig stats -->
+    <div class="gig-stats">
+      <div>
+        <div class="gig-stat-num">12</div>
+        <div class="gig-stat-label">Songs proposed</div>
+      </div>
+      <div>
+        <div class="gig-stat-num" style="color:var(--gold)">5</div>
+        <div class="gig-stat-label">Open seats</div>
+      </div>
+      <div>
+        <div class="gig-stat-num">7<small style="font-size:1rem; color:var(--text-3); letter-spacing:0.05em">d</small></div>
+        <div class="gig-stat-label">Until doors open</div>
+      </div>
+      <div>
+        <div class="gig-stat-num" style="color:#A5D6A7">7</div>
+        <div class="gig-stat-label">Songs locked</div>
+      </div>
+    </div>
+
+    <!-- How to sign up — visible in both states, frames the page -->
+    <div style="margin-bottom:1.5rem; padding:1.25rem 1.5rem; background:rgba(255,179,0,0.06); border:1px solid rgba(255,179,0,0.25); border-radius:1rem;">
+      <h2 class="kicker" style="margin:0 0 0.5rem">How to sign up</h2>
+      <ol style="margin:0; padding-left:1.25rem; color:var(--text-2); display:flex; flex-direction:column; gap:0.375rem; font-size:0.9375rem;">
+        <li>Scroll the songs below — look at the open seats marked in gold.</li>
+        <li class="guest-only"><a href="#login" style="color:var(--gold); text-decoration:underline; font-weight:600">Sign in with Telegram</a> to make claims.</li>
+        <li class="auth-only">Tap an open seat to claim that part — your name appears immediately.</li>
+        <li>Don't see your song? Use <a href="#" onclick="event.preventDefault(); openProposeModal()" style="color:var(--gold); text-decoration:underline;">+ Propose a song</a>.</li>
+      </ol>
+    </div>
+
+    <!-- Guest sticky CTA -->
+    <div class="guest-only" style="margin-bottom:1.5rem; padding:1rem 1.25rem; background:rgba(229,57,53,0.05); border:1px solid rgba(229,57,53,0.3); border-radius:0.875rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+      <div style="flex:1; min-width:220px;">
+        <strong style="color:var(--sand)">Ready to play on 2 June?</strong>
+        <p class="text-small text-muted" style="margin:2px 0 0">Sign in once — then claim a part with one tap.</p>
+      </div>
+      <a href="#login" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 4.5L2.5 11.5l5 1.7 11-7-9 8.5L9 19.5l3-3 4 3 5.5-15z"/></svg>
+        Sign in with Telegram
+      </a>
+    </div>
+
+    <!-- Section: Songs locked -->
+    <section class="section">
+      <h2 class="section-title" style="display:flex; align-items:center; gap:0.625rem;">
+        <span style="color:#A5D6A7">●</span> Locked &amp; ready
+      </h2>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">01</span>
+            <div>
+              <h3 class="track-card-title">In the End</h3>
+              <p class="track-card-artist">Linkin Park · proposed by <a href="#" style="color:var(--gold); text-decoration:none">@alesichd</a></p>
+            </div>
+          </div>
+          <span class="track-tag">Locked</span>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed required"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Vocal · @alesichd</span>
+          <span class="role-pill claimed required"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="4" height="12" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="11" width="4" height="10" rx="1"/></svg> Guitar · @meinlp</span>
+          <span class="role-pill claimed required"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg> Drums · @ozz_drums</span>
+          <span class="role-pill claimed required">Bass · @baasya</span>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">02</span>
+            <div>
+              <h3 class="track-card-title">Wicked Game</h3>
+              <p class="track-card-artist">HIM · proposed by <a href="#" style="color:var(--gold); text-decoration:none">@dashetta</a></p>
+            </div>
+          </div>
+          <span class="track-tag">Locked</span>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed required">Vocal · @dashetta</span>
+          <span class="role-pill claimed required">Guitar · @ilya_doronin</span>
+          <span class="role-pill claimed required">Drums · @ozz_drums</span>
+          <span class="role-pill claimed required">Bass · @baasya</span>
+          <span class="role-pill claimed opt">Keys · @kinteus</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Section: Songs with open seats -->
+    <section class="section" id="need-a-hand-section">
+      <h2 class="section-title" style="display:flex; align-items:center; gap:0.625rem;">
+        <span style="color:var(--gold)">●</span> Need a hand
+      </h2>
+      <div id="need-a-hand">
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">03</span>
+            <div>
+              <h3 class="track-card-title">Bring Me to Life</h3>
+              <p class="track-card-artist">Evanescence · proposed by <a href="#" style="color:var(--gold); text-decoration:none">@alesichd</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed required">Lead vocal · @alesichd</span>
+          <button type="button" class="role-pill open required" onclick="tryClaim(this, 'Male vocal')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Male vocal · Claim</button>
+          <button type="button" class="role-pill open required" onclick="tryClaim(this, 'Guitar')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Guitar · Claim</button>
+          <span class="role-pill claimed required">Drums · @ozz_drums</span>
+          <span class="role-pill claimed required">Bass · @baasya</span>
+          <button type="button" class="role-pill open opt" onclick="tryClaim(this, 'Keys')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Keys · Claim</button>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">04</span>
+            <div>
+              <h3 class="track-card-title">Killing in the Name</h3>
+              <p class="track-card-artist">Rage Against the Machine · proposed by <a href="#" style="color:var(--gold); text-decoration:none">@meinlp</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed required">Vocal · @meinlp</span>
+          <span class="role-pill claimed required">Guitar · @meinlp</span>
+          <button type="button" class="role-pill open required" onclick="tryClaim(this, 'Drums')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Drums · Claim</button>
+          <button type="button" class="role-pill open required" onclick="tryClaim(this, 'Bass')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Bass · Claim</button>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">05</span>
+            <div>
+              <h3 class="track-card-title">Numb</h3>
+              <p class="track-card-artist">Linkin Park · proposed by <a href="#" style="color:var(--gold); text-decoration:none">@baasya</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="role-list">
+          <button type="button" class="role-pill open required" onclick="tryClaim(this, 'Vocal')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Vocal · Claim</button>
+          <span class="role-pill claimed required">Guitar · @ilya_doronin</span>
+          <span class="role-pill claimed required">Drums · @ozz_drums</span>
+          <span class="role-pill claimed required">Bass · @baasya</span>
+        </div>
+      </article>
+      </div>
+    </section>
+
+    <!-- Propose a song CTA -->
+    <section class="section">
+      <div class="panel" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <div>
+          <span class="kicker">Got an idea?</span>
+          <h2 class="section-title" style="margin:0">Propose a song to the line-up</h2>
+          <p class="text-muted text-small" style="margin-top:0.5rem">Add a track, choose your role, others can join in.</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="openProposeModal()">+ Propose a song</button>
+      </div>
+    </section>
+  </section>
+
+  <section data-page="gig-archived" id="page-gig-archived">
+<a href="#archive" class="btn-link" style="margin-bottom:1.5rem">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to archive
+    </a>
+
+    <!-- Gig header -->
+    <header style="margin-bottom:2rem">
+      <span class="gig-status final">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+        Final · published
+      </span>
+      <h1 class="gig-title">14 December 2025 — Limassol</h1>
+      <div class="gig-meta">
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> 14 Dec 2025</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 19:00</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg> Limassol</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z"/></svg> 17 musicians</span>
+      </div>
+    </header>
+
+    <div class="gig-stats">
+      <div>
+        <div class="gig-stat-num">22</div>
+        <div class="gig-stat-label">Tracks played</div>
+      </div>
+      <div>
+        <div class="gig-stat-num">17</div>
+        <div class="gig-stat-label">Musicians on stage</div>
+      </div>
+      <div>
+        <div class="gig-stat-num">2<small style="font-size:1rem; color:var(--text-3); letter-spacing:0.05em">h</small> 38<small style="font-size:1rem; color:var(--text-3); letter-spacing:0.05em">m</small></div>
+        <div class="gig-stat-label">Total runtime</div>
+      </div>
+      <div>
+        <div class="gig-stat-num">1</div>
+        <div class="gig-stat-label">Encore</div>
+      </div>
+    </div>
+
+    <!-- Read-only tracklist -->
+    <section class="section" aria-labelledby="setlist-final">
+      <h2 id="setlist-final" class="section-title">Final setlist</h2>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">01</span>
+            <div>
+              <h3 class="track-card-title">Otherside</h3>
+              <p class="track-card-artist">Red Hot Chili Peppers</p>
+            </div>
+          </div>
+          <span class="track-tag">Opener</span>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed">Vocal · @alesichd</span>
+          <span class="role-pill claimed">Guitar · @meinlp</span>
+          <span class="role-pill claimed">Bass · @baasya</span>
+          <span class="role-pill claimed">Drums · @ozz_drums</span>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">02</span>
+            <div>
+              <h3 class="track-card-title">Numb</h3>
+              <p class="track-card-artist">Linkin Park</p>
+            </div>
+          </div>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed">Vocal · @dashetta</span>
+          <span class="role-pill claimed">Guitar · @ilya_doronin</span>
+          <span class="role-pill claimed">Bass · @baasya</span>
+          <span class="role-pill claimed">Drums · @ozz_drums</span>
+          <span class="role-pill claimed">Backing vocal · @alesichd</span>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">03</span>
+            <div>
+              <h3 class="track-card-title">Hysteria</h3>
+              <p class="track-card-artist">Muse</p>
+            </div>
+          </div>
+          <span class="track-tag">OPT</span>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed">Vocal · @meinlp</span>
+          <span class="role-pill claimed">Guitar · @meinlp</span>
+          <span class="role-pill claimed">Bass · @baasya</span>
+          <span class="role-pill claimed">Drums · @ozz_drums</span>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">04</span>
+            <div>
+              <h3 class="track-card-title">Bring Me to Life</h3>
+              <p class="track-card-artist">Evanescence</p>
+            </div>
+          </div>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed">Lead vocal · @alesichd</span>
+          <span class="role-pill claimed">Male vocal · @ilya_doronin</span>
+          <span class="role-pill claimed">Guitar · @meinlp</span>
+          <span class="role-pill claimed">Bass · @baasya</span>
+          <span class="role-pill claimed">Drums · @ozz_drums</span>
+          <span class="role-pill claimed">Keys · @kinteus</span>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">05</span>
+            <div>
+              <h3 class="track-card-title">Killing in the Name</h3>
+              <p class="track-card-artist">Rage Against the Machine</p>
+            </div>
+          </div>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed">Vocal · @meinlp</span>
+          <span class="role-pill claimed">Guitar · @ilya_doronin</span>
+          <span class="role-pill claimed">Bass · @baasya</span>
+          <span class="role-pill claimed">Drums · @ozz_drums</span>
+        </div>
+      </article>
+
+      <article class="track-card">
+        <div class="track-card-head">
+          <div class="track-card-head-left">
+            <span class="track-num">22</span>
+            <div>
+              <h3 class="track-card-title">In the End</h3>
+              <p class="track-card-artist">Linkin Park</p>
+            </div>
+          </div>
+          <span class="track-tag">Encore</span>
+        </div>
+        <div class="role-list">
+          <span class="role-pill claimed">Vocal · @alesichd</span>
+          <span class="role-pill claimed">Vocal · @dashetta</span>
+          <span class="role-pill claimed">Guitar · @meinlp</span>
+          <span class="role-pill claimed">Guitar · @ilya_doronin</span>
+          <span class="role-pill claimed">Bass · @baasya</span>
+          <span class="role-pill claimed">Drums · @ozz_drums</span>
+        </div>
+      </article>
+
+      <div style="display:flex; justify-content:center; margin-top:2rem;">
+        <a href="#archive" class="btn btn-ghost">← Back to archive</a>
+      </div>
+    </section>
+  </section>
+
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="#home" class="logo logo--footer" aria-label="The Jammers"><img src="brand/the-jammers-logo.webp" alt="The Jammers" class="logo-img" width="480" height="82"></a>
+      <p class="text-muted text-small" style="margin-top:0.75rem; max-width:340px;">Live gig boards for the Cyprus music community.</p>
+    </div>
+    <div>
+      <h4>Navigate</h4>
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#archive">Setlists</a>
+        <a href="#about">About</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+    <div>
+      <h4>Contact &amp; legal</h4>
+      <div class="footer-links">
+        <a href="mailto:maksim.naumov.music@gmail.com">maksim.naumov.music@gmail.com</a>
+        <a href="https://t.me/kinteus" rel="noopener">Telegram: @kinteus</a>
+        <a href="#privacy">Privacy policy</a>
+        <a href="#terms">Terms of use</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 The Jammers. Cyprus.</span>
+    <span>Made with loud guitars and louder drummers.</span>
+  </div>
+</footer>
+
+<button class="demo-toggle" id="demo-toggle" onclick="toggleAuth()">Demo: Simulate sign in</button>
+
+<script>
+
+const menuBtn = document.getElementById('menu-btn');
+const menuClose = document.getElementById('menu-close');
+const menu = document.getElementById('mobile-menu');
+const backdrop = document.getElementById('mobile-backdrop');
+function setMenu(open) {
+  menu.classList.toggle('open', open);
+  backdrop.classList.toggle('open', open);
+  menuBtn.setAttribute('aria-expanded', String(open));
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+menuBtn.addEventListener('click', () => setMenu(true));
+menuClose.addEventListener('click', () => setMenu(false));
+backdrop.addEventListener('click', () => setMenu(false));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+// Auth state
+function syncDesktopBtn() {
+  const isDesktop = window.innerWidth >= 768;
+  const isAuth = localStorage.getItem('jammersAuth') === 'true';
+  const signIn = document.getElementById('signin-desktop');
+  const chip = document.getElementById('profile-chip-desktop');
+  if (signIn) signIn.style.display = (isDesktop && !isAuth) ? 'inline-flex' : 'none';
+  if (chip) chip.style.display = (isDesktop && isAuth) ? 'inline-flex' : 'none';
+}
+syncDesktopBtn();
+window.addEventListener('resize', syncDesktopBtn);
+
+function applyAuthState() {
+  const isAuth = localStorage.getItem('jammersAuth') === 'true';
+  const user = localStorage.getItem('jammersUser') || '@ilya_k';
+  document.body.setAttribute('data-auth', String(isAuth));
+  document.querySelectorAll('#profile-name').forEach(el => el.textContent = user);
+  document.querySelectorAll('#profile-avatar').forEach(el => el.textContent = user.replace('@','').slice(0,2).toUpperCase());
+  document.querySelectorAll('#welcome-user').forEach(el => el.textContent = user);
+  const demoBtn = document.getElementById('demo-toggle');
+  if (demoBtn) demoBtn.textContent = isAuth ? 'Demo: Sign out' : 'Demo: Simulate sign in';
+  syncDesktopBtn();
+}
+function toggleAuth() {
+  const isAuth = localStorage.getItem('jammersAuth') === 'true';
+  if (isAuth) {
+    localStorage.removeItem('jammersAuth');
+    localStorage.removeItem('jammersUser');
+  } else {
+    localStorage.setItem('jammersAuth', 'true');
+    localStorage.setItem('jammersUser', '@ilya_k');
+  }
+  applyAuthState();
+}
+function signOut() {
+  localStorage.removeItem('jammersAuth');
+  localStorage.removeItem('jammersUser');
+  applyAuthState();
+  setMenu(false);
+}
+function fakeLogin() {
+  localStorage.setItem('jammersAuth', 'true');
+  localStorage.setItem('jammersUser', '@ilya_k');
+  window.location.hash = '#home';
+}
+applyAuthState();
+
+// Language toggle
+document.querySelectorAll('.lang button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    btn.setAttribute('aria-pressed', 'true');
+  });
+});
+
+// Hash router
+const PAGES_LIST = ['home','archive','about','faq','login','gig-active','gig-archived'];
+function showPage(name) {
+  if (!PAGES_LIST.includes(name)) name = 'home';
+  document.querySelectorAll('[data-page]').forEach(el => {
+    el.hidden = el.dataset.page !== name;
+  });
+  document.querySelectorAll('[data-nav]').forEach(a => {
+    if (a.dataset.nav === name) {
+      a.classList.add('active');
+      a.setAttribute('aria-current', 'page');
+    } else {
+      a.classList.remove('active');
+      a.removeAttribute('aria-current');
+    }
+  });
+  window.scrollTo(0, 0);
+  setMenu(false);
+  // Run any page-specific init when on certain pages
+  if (name === 'login') {
+    const isAuth = localStorage.getItem('jammersAuth') === 'true';
+    const card = document.querySelector('[data-page="login"] .login-card');
+    if (isAuth && card && !document.getElementById('already-in')) {
+      const note = document.createElement('div');
+      note.id = 'already-in';
+      note.style.cssText = 'margin-top:1.25rem; padding:0.875rem 1rem; background:rgba(76,175,80,0.08); border:1px solid rgba(76,175,80,0.3); border-radius:8px; color:#A5D6A7; font-size:0.875rem;';
+      note.innerHTML = 'You are already signed in. <a href="#home" style="color:#A5D6A7; text-decoration:underline; font-weight:600;">Go to home →</a>';
+      card.appendChild(note);
+    }
+  }
+}
+function route() {
+  const hash = location.hash.slice(1) || 'home';
+  showPage(hash);
+}
+window.addEventListener('hashchange', route);
+route();
+
+// ============ Archive filter ============
+function applyFilter() {
+  const q = (document.getElementById('q')?.value || '').toLowerCase().trim();
+  const year = document.getElementById('year')?.value || '';
+  const rows = document.querySelectorAll('.setlist-row');
+  let visible = 0;
+  rows.forEach(r => {
+    const text = r.textContent.toLowerCase();
+    const matchesQ = !q || text.includes(q);
+    const matchesYear = !year || r.dataset.year === year;
+    const show = matchesQ && matchesYear;
+    r.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+}
+
+// ============ FAQ form ============
+const form = document.getElementById('feedback-form');
+if (form) {
+  const successBox = document.getElementById('form-success');
+  const fields = [
+    { id: 'contact', test: v => v.trim().length > 0 },
+    { id: 'message', test: v => v.trim().length >= 10 },
+  ];
+  const consent = document.getElementById('consent');
+  fields.forEach(({ id, test }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('blur', () => {
+      const valid = test(el.value);
+      el.setAttribute('aria-invalid', valid ? 'false' : 'true');
+    });
+    el.addEventListener('input', () => {
+      if (el.getAttribute('aria-invalid') === 'true' && test(el.value)) {
+        el.setAttribute('aria-invalid', 'false');
+      }
+    });
+  });
+  if (consent) {
+    consent.addEventListener('change', () => {
+      const err = document.getElementById('consent-error');
+      if (err) err.style.display = consent.checked ? 'none' : 'block';
+    });
+  }
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let firstInvalid = null;
+    fields.forEach(({ id, test }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const valid = test(el.value);
+      el.setAttribute('aria-invalid', valid ? 'false' : 'true');
+      if (!valid && !firstInvalid) firstInvalid = el;
+    });
+    if (consent && !consent.checked) {
+      const err = document.getElementById('consent-error');
+      if (err) err.style.display = 'block';
+      if (!firstInvalid) firstInvalid = consent;
+    }
+    if (firstInvalid) {
+      firstInvalid.focus();
+      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (successBox) {
+      successBox.classList.add('show');
+      form.reset();
+      successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => successBox.classList.remove('show'), 6000);
+    }
+  });
+}
+
+// ============ Gig-active: claim & propose ============
+function tryClaim(btn, roleName) {
+  const isAuth = localStorage.getItem('jammersAuth') === 'true';
+  if (!isAuth) {
+    window.location.hash = '#login';
+    return;
+  }
+  const user = localStorage.getItem('jammersUser') || '@ilya_k';
+  btn.outerHTML = `<span class="role-pill claimed required">${roleName} · ${user}</span>`;
+  showToast(`Claimed ${roleName} · ${user}`);
+}
+
+function openProposeModal() {
+  const isAuth = localStorage.getItem('jammersAuth') === 'true';
+  if (!isAuth) {
+    showToast('Sign in to propose a song.', 'error');
+    setTimeout(() => { window.location.hash = '#login'; }, 1200);
+    return;
+  }
+  const m = document.getElementById('propose-modal');
+  if (!m) return;
+  m.hidden = false;
+  requestAnimationFrame(() => m.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('song-title')?.focus(), 100);
+}
+function closeProposeModal() {
+  const m = document.getElementById('propose-modal');
+  if (!m) return;
+  m.classList.remove('open');
+  setTimeout(() => { m.hidden = true; }, 200);
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  const m = document.getElementById('propose-modal');
+  if (e.key === 'Escape' && m && m.classList.contains('open')) {
+    closeProposeModal();
+  }
+});
+const proposeModal = document.getElementById('propose-modal');
+if (proposeModal) {
+  proposeModal.addEventListener('click', e => {
+    if (e.target.id === 'propose-modal') closeProposeModal();
+  });
+}
+const proposeForm = document.getElementById('propose-form');
+if (proposeForm) {
+  proposeForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const title = document.getElementById('song-title').value.trim();
+    const artist = document.getElementById('song-artist').value.trim();
+    const roles = Array.from(document.querySelectorAll('[name="role"]:checked')).map(c => c.value);
+    if (!title) { document.getElementById('song-title').focus(); showToast('Add the song title.', 'error'); return; }
+    if (!artist) { document.getElementById('song-artist').focus(); showToast('Add the artist.', 'error'); return; }
+    if (roles.length === 0) { showToast('Pick at least one part you can play.', 'error'); return; }
+    const user = localStorage.getItem('jammersUser') || '@ilya_k';
+    addProposedTrack(title, artist, roles, user);
+    closeProposeModal();
+    proposeForm.reset();
+    showToast('Song proposed · waiting for others to join in');
+    const stats = document.querySelectorAll('.gig-stat-num');
+    if (stats[0]) stats[0].textContent = Number(stats[0].textContent || 0) + 1;
+  });
+}
+
+function addProposedTrack(title, artist, roles, user) {
+  const container = document.getElementById('need-a-hand');
+  if (!container) return;
+  const num = String(document.querySelectorAll('.track-card').length + 1).padStart(2,'0');
+  const allRoles = ['Vocal','Guitar','Bass','Drums','Keys'];
+  const openRoles = allRoles.filter(r => !roles.includes(r));
+  const claimedHtml = roles.map(r => `<span class="role-pill claimed required">${r} · ${user}</span>`).join('');
+  const openHtml = openRoles.map(r =>
+    `<button type="button" class="role-pill open required" onclick="tryClaim(this, '${r}')"><svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> ${r} · Claim</button>`
+  ).join('');
+  const card = document.createElement('article');
+  card.className = 'track-card';
+  card.innerHTML = `
+    <div class="track-card-head">
+      <div class="track-card-head-left">
+        <span class="track-num">${num}</span>
+        <div>
+          <h3 class="track-card-title">${escapeHtml(title)}</h3>
+          <p class="track-card-artist">${escapeHtml(artist)} · proposed by <a href="#" style="color:var(--gold); text-decoration:none">${user}</a></p>
+        </div>
+      </div>
+      <span class="track-tag" style="background:rgba(255,179,0,0.12); border-color:rgba(255,179,0,0.3); color:var(--gold)">New</span>
+    </div>
+    <div class="role-list">${claimedHtml}${openHtml}</div>
+  `;
+  container.appendChild(card);
+  card.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.remove('error');
+  if (type === 'error') t.classList.add('error');
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+</script>
+</body>
+</html>
